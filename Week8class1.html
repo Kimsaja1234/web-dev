@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div class="para para-first"></div>
+    <div class="para"></div>
+    <div class="para"></div>
+    <div class="para"></div>
+    <div id="demo" class="para"></div>
+    <div class="para para-last"></div>
+
+    <script>
+        const para = document.querySelectorAll('.para')
+
+        for(let i = 0; i < para.length; i++) {
+            para[i].innerHTML = 'abcde';
+            para[i].classList.add(`para-${i + 1}`);
+        }
+
+        const demoId = document.querySelector('#demo');
+        console.log(demoId)
+        if(demoId) {
+            demoId.classList.add('demo-class')
+        }
+    </script>
+</body>
+</html>

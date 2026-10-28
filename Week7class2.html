@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paragraph Class List</title>
+    <style>
+        .demo {\n            padding: 8px;\n            border-left: 4px solid #1d4ed8;\n        }\n\n        .student-message {
+            color: #1d4ed8;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <p class="para"></p>
+    <p class="para"></p>
+    <p class="para"></p>
+    <p class="para"></p>
+    <p class="para"></p>
+    <p class="para"></p>
+    <p class="para"></p>
+    <p class="para"></p>
+    <p class="para"></p>
+    <p class="para"></p>
+
+    <script>
+        const paragraphs = document.querySelectorAll('.para');
+
+        for (let i = 0; i < paragraphs.length; i++) {
+            paragraphs[i].textContent = 'Kimsaja is a student in the class.';
+            paragraphs[i].classList.add('student-message', 'demo');
+        }
+    </script>
+</body>
+</html>

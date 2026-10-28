@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Image with Play Button</title>
+
+    <style>
+        .first-class {
+            height: 200px;
+            width: 300px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .first-class img {
+            height: 200px;
+            width: 300px;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* Top half - Red */
+        .first-class::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 50%;
+            background-color: red;
+            opacity: 0.5;
+            z-index: 1;
+        }
+
+        /* Bottom half - Blue */
+        .first-class::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 50%;
+            background-color: blue;
+            opacity: 0.5;
+            z-index: 1;
+        }
+
+        .play-button {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60px;
+            height: 60px;
+            z-index: 2;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="first-class">
+        <img src="./images/7.png" alt="Image">
+
+        <svg
+            class="play-button"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24">
+
+            <circle
+                cx="12"
+                cy="12"
+                r="10"
+                fill="black"
+                opacity="0.7">
+            </circle>
+
+            <path
+                d="M10 8L16 12L10 16V8Z"
+                fill="white">
+            </path>
+
+        </svg>
+    </div>
+
+</body>
+
+</html>

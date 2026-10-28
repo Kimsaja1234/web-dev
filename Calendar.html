@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daylight - Calendar & Digital Clock</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #d9eaff, #f4f8ff);
+            color: #182b45;
+            min-height: 100vh;
+            padding: 25px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: auto;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 35px;
+        }
+
+        .logo {
+            font-size: 25px;
+            font-weight: bold;
+            color: #2874df;
+        }
+
+        .today-button {
+            background: white;
+            border: 1px solid #dce8f7;
+            padding: 10px 18px;
+            border-radius: 12px;
+            cursor: pointer;
+        }
+
+        .hero {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 25px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .hero h1 {
+            font-size: 38px;
+            margin-bottom: 12px;
+        }
+
+        .hero h1 span {
+            color: #428cf4;
+        }
+
+        .hero p {
+            color: #718096;
+            line-height: 1.6;
+        }
+
+        .clock-card {
+            background: linear-gradient(135deg, #428cf4, #76b0ff);
+            color: white;
+            padding: 25px;
+            border-radius: 22px;
+            min-width: 270px;
+            box-shadow: 0 10px 25px #428cf433;
+        }
+
+        .clock-label {
+            font-size: 12px;
+            letter-spacing: 2px;
+        }
+
+        #clock {
+            font-size: 42px;
+            font-weight: bold;
+            margin: 15px 0 5px;
+        }
+
+        #clockDate {
+            font-size: 13px;
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            gap: 22px;
+        }
+
+        .calendar-card,
+        .events-card {
+            background: white;
+            padding: 25px;
+            border-radius: 24px;
+            box-shadow: 0 12px 35px #31547a12;
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .calendar-header h2 {
+            font-size: 23px;
+        }
+
+        .navigation {
+            display: flex;
+            gap: 8px;
+        }
+
+        .navigation button {
+            width: 38px;
+            height: 38px;
+            border: none;
+            border-radius: 50%;
+            background: #edf5ff;
+            color: #428cf4;
+            font-size: 25px;
+            cursor: pointer;
+        }
+
+        .weekdays,
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, minmax(0, 1fr));
+            gap: 7px;
+        }
+
+        .weekdays {
+            margin: 28px 0 12px;
+            text-align: center;
+            color: #8190a4;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .day {
+            position: relative;
+            min-height: 46px;
+            border: none;
+            border-radius: 50%;
+            background: transparent;
+            color: #34445b;
+            font-size: 14px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .day:hover {
+            background: #eaf3ff;
+        }
+
+        .day.today {
+            border: 2px solid #428cf4;
+            color: #2874df;
+            font-weight: bold;
+        }
+
+        .day.selected {
+            background: #428cf4;
+            color: white;
+            box-shadow: 0 5px 12px #428cf455;
+        }
+
+        .day.other-month {
+            color: #c5ced9;
+        }
+
+        .day.has-event:not(.selected)::after {
+            content: "";
+            position: absolute;
+            bottom: 4px;
+            left: calc(50% - 3px);
+            width: 6px;
+            height: 6px;
+            background: #f0a44b;
+            border-radius: 50%;
+        }
+
+        .day.selected.has-event::after {
+            background: white;
+        }
+
+        .legend {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 22px;
+            padding-top: 17px;
+            border-top: 1px solid #edf0f5;
+            color: #8190a4;
+            font-size: 11px;
+        }
+
+        .legend span {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .legend i {
+            width: 8px;
+            height: 8px;
+            display: inline-block;
+            border-radius: 50%;
+            background: #428cf4;
+        }
+
+        .legend .event-dot {
+            background: #f0a44b;
+        }
+
+        .events-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .events-header h2 {
+            font-size: 22px;
+        }
+
+        .event-count {
+            padding: 7px 10px;
+            background: #edf5ff;
+            color: #428cf4;
+            border-radius: 20px;
+            font-size: 11px;
+        }
+
+        #eventList {
+            margin-top: 22px;
+        }
+
+        .event-item {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 14px;
+            margin-bottom: 10px;
+            border: 1px solid #e7edf5;
+            border-radius: 14px;
+        }
+
+        .event-title {
+            font-size: 14px;
+            font-weight: bold;
+            overflow-wrap: anywhere;
+        }
+
+        .event-time {
+            margin-top: 7px;
+            color: #428cf4;
+            font-size: 12px;
+        }
+
+        .event-note {
+            margin-top: 7px;
+            font-size: 12px;
+            line-height: 1.5;
+            color: #8190a4;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+        }
+
+        .delete-button {
+            align-self: flex-start;
+            background: transparent;
+            border: none;
+            color: #cf7373;
+            font-size: 19px;
+            cursor: pointer;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 10px;
+        }
+
+        .empty-icon {
+            font-size: 32px;
+            color: #428cf4;
+            margin-bottom: 12px;
+        }
+
+        .empty-state h3 {
+            margin-bottom: 8px;
+        }
+
+        .empty-state p {
+            color: #8190a4;
+            font-size: 12px;
+            line-height: 1.6;
+            margin-bottom: 18px;
+        }
+
+        .add-button,
+        .save-button {
+            background: #428cf4;
+            color: white;
+            border: none;
+            padding: 12px 17px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .add-button:hover,
+        .save-button:hover {
+            background: #2874df;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 25px 0 5px;
+            font-size: 12px;
+            color: #8190a4;
+        }
+
+        dialog {
+            width: min(420px, calc(100% - 30px));
+            margin: auto;
+            border: none;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 20px 70px #182b4540;
+        }
+
+        dialog::backdrop {
+            background: #182b4577;
+        }
+
+        .dialog-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .close-button {
+            border: none;
+            background: #edf5ff;
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            font-size: 21px;
+            cursor: pointer;
+        }
+
+        form label {
+            display: block;
+            font-size: 13px;
+            font-weight: bold;
+            margin: 14px 0 7px;
+        }
+
+        form input,
+        form textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #dce5f0;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 14px;
+        }
+
+        form input:focus,
+        form textarea:focus {
+            outline: 2px solid #b8d6ff;
+            border-color: #428cf4;
+        }
+
+        form textarea {
+            resize: vertical;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .cancel-button {
+            padding: 12px 17px;
+            border: 1px solid #dce5f0;
+            border-radius: 12px;
+            background: white;
+            cursor: pointer;
+        }
+
+        @media (max-width: 800px) {
+            body {
+                padding: 15px;
+            }
+
+            .content {
+                grid-template-columns: 1fr;
+            }
+
+            .hero h1 {
+                font-size: 30px;
+            }
+
+            .clock-card {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 420px) {
+            .calendar-card,
+            .events-card {
+                padding: 16px;
+            }
+
+            .day {
+                min-height: 38px;
+                font-size: 12px;
+            }
+
+            .weekdays,
+            .calendar-grid {
+                gap: 3px;
+            }
+
+            .calendar-header h2 {
+                font-size: 19px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <main class="container">
+
+        <header>
+            <div class="logo">✳ daylight</div>
+            <button class="today-button" id="todayButton">Today</button>
+        </header>
+
+        <section class="hero">
+            <div>
+                <h1>Make room for<br><span>what matters.</span></h1>
+                <p>Organize your days, manage reminders, and keep track of time.</p>
+            </div>
+
+            <div class="clock-card">
+                <div class="clock-label">● LIVE LOCAL TIME</div>
+                <div id="clock">12:00 PM</div>
+                <div id="clockDate"></div>
+            </div>
+        </section>
+
+        <section class="content">
+
+            <div class="calendar-card">
+                <div class="calendar-header">
+                    <h2 id="monthTitle"></h2>
+
+                    <div class="navigation">
+                        <button id="previousMonth" aria-label="Previous month">‹</button>
+                        <button id="nextMonth" aria-label="Next month">›</button>
+                    </div>
+                </div>
+
+                <div class="weekdays">
+                    <span>Sun</span>
+                    <span>Mon</span>
+                    <span>Tue</span>
+                    <span>Wed</span>
+                    <span>Thu</span>
+                    <span>Fri</span>
+                    <span>Sat</span>
+                </div>
+
+                <div id="calendarGrid" class="calendar-grid"></div>
+
+                <div class="legend">
+                    <span><i></i> Today</span>
+                    <span><i class="event-dot"></i> Has reminder</span>
+                </div>
+            </div>
+
+            <aside class="events-card">
+                <div class="events-header">
+                    <h2 id="selectedDateTitle">Your Day</h2>
+                    <span class="event-count" id="eventCount">0 events</span>
+                </div>
+
+                <div id="eventList"></div>
+
+                <div class="empty-state" id="emptyState">
+                    <div class="empty-icon">✦</div>
+                    <h3>Nothing planned yet</h3>
+                    <p>Click a date to view reminders.<br>Double-click a date to add one.</p>
+                    <button class="add-button" id="addButton">+ Add Reminder</button>
+                </div>
+            </aside>
+
+        </section>
+
+        <footer class="footer">
+            Daylight Calendar & Digital Clock · Made for calmer planning
+        </footer>
+
+    </main>
+
+    <dialog id="eventDialog">
+        <div class="dialog-header">
+            <h2>Add Reminder</h2>
+            <button class="close-button" id="closeButton" aria-label="Close">×</button>
+        </div>
+
+        <form id="eventForm">
+            <label for="eventTitle">Event title</label>
+            <input id="eventTitle" type="text" maxlength="90"
+                   placeholder="e.g. Project presentation" required>
+
+            <label for="eventTime">Time</label>
+            <input id="eventTime" type="time">
+
+            <label for="eventNote">Notes (optional)</label>
+            <textarea id="eventNote" rows="3" maxlength="500"
+                      placeholder="Add some details..."></textarea>
+
+            <div class="form-actions">
+                <button type="button" class="cancel-button" id="cancelButton">
+                    Cancel
+                </button>
+                <button type="submit" class="save-button">Save Reminder</button>
+            </div>
+        </form>
+    </dialog>
+
+    <script>
+        const monthTitle = document.getElementById("monthTitle");
+        const calendarGrid = document.getElementById("calendarGrid");
+        const selectedDateTitle = document.getElementById("selectedDateTitle");
+        const eventList = document.getElementById("eventList");
+        const eventCount = document.getElementById("eventCount");
+        const emptyState = document.getElementById("emptyState");
+        const eventDialog = document.getElementById("eventDialog");
+        const eventForm = document.getElementById("eventForm");
+
+        const pad = number => String(number).padStart(2, "0");
+
+        function makeDateKey(date) {
+            return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+        }
+
+        function getToday() {
+            const now = new Date();
+            return new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        }
+
+        let selectedDate = getToday();
+        let viewedMonth = new Date(
+            selectedDate.getFullYear(),
+            selectedDate.getMonth(),
+            1
+        );
+
+        let reminderDate = null;
+        let events = {};
+
+        try {
+            events = JSON.parse(localStorage.getItem("daylightEvents") || "{}");
+        } catch (error) {
+            events = {};
+        }
+
+        function saveEvents() {
+            localStorage.setItem("daylightEvents", JSON.stringify(events));
+        }
+
+        // Update the digital clock every second.
+        function updateClock() {
+            const now = new Date();
+
+            document.getElementById("clock").textContent =
+                now.toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    second: "2-digit"
+                });
+
+            document.getElementById("clockDate").textContent =
+                now.toLocaleDateString([], {
+                    weekday: "long",
+                    month: "long",
+                    day: "numeric",
+                    year: "numeric"
+                });
+        }
+
+        // Draw the monthly calendar.
+        function renderCalendar() {
+            monthTitle.textContent = viewedMonth.toLocaleDateString([], {
+                month: "long",
+                year: "numeric"
+            });
+
+            calendarGrid.innerHTML = "";
+
+            const firstDay = new Date(
+                viewedMonth.getFullYear(),
+                viewedMonth.getMonth(),
+                1
+            );
+
+            const startDate = new Date(firstDay);
+            startDate.setDate(firstDay.getDate() - firstDay.getDay());
+
+            const todayKey = makeDateKey(getToday());
+            const selectedKey = makeDateKey(selectedDate);
+
+            for (let i = 0; i < 42; i++) {
+                const date = new Date(startDate);
+                date.setDate(startDate.getDate() + i);
+
+                const key = makeDateKey(date);
+                const dayEvents = events[key] || [];
+
+                const button = document.createElement("button");
+                button.type = "button";
+                button.textContent = date.getDate();
+                button.className = "day";
+
+                if (date.getMonth() !== viewedMonth.getMonth()) {
+                    button.classList.add("other-month");
+                }
+
+                if (key === todayKey) {
+                    button.classList.add("today");
+                }
+
+                if (key === selectedKey) {
+                    button.classList.add("selected");
+                }
+
+                if (dayEvents.length > 0) {
+                    button.classList.add("has-event");
+                }
+
+                button.setAttribute(
+                    "aria-label",
+                    date.toLocaleDateString([], {
+                        month: "long",
+                        day: "numeric",
+                        year: "numeric"
+                    })
+                );
+
+                // Single-click a date to view its reminders.
+                button.addEventListener("click", () => {
+                    selectedDate = date;
+
+                    if (date.getMonth() !== viewedMonth.getMonth()) {
+                        viewedMonth = new Date(
+                            date.getFullYear(),
+                            date.getMonth(),
+                            1
+                        );
+                    }
+
+                    renderCalendar();
+                    renderEvents();
+                });
+
+                // Double-click a date to add a reminder.
+                button.addEventListener("dblclick", () => {
+                    selectedDate = date;
+                    viewedMonth = new Date(
+                        date.getFullYear(),
+                        date.getMonth(),
+                        1
+                    );
+
+                    renderCalendar();
+                    renderEvents();
+                    openEventDialog(date);
+                });
+
+                calendarGrid.appendChild(button);
+            }
+        }
+
+        // Show the selected date's reminders.
+        function renderEvents() {
+            const key = makeDateKey(selectedDate);
+            const dayEvents = events[key] || [];
+
+            selectedDateTitle.textContent =
+                selectedDate.toLocaleDateString([], {
+                    weekday: "short",
+                    month: "short",
+                    day: "numeric"
+                });
+
+            eventCount.textContent =
+                `${dayEvents.length} event${dayEvents.length === 1 ? "" : "s"}`;
+
+            eventList.innerHTML = "";
+            emptyState.style.display = dayEvents.length ? "none" : "block";
+
+            dayEvents.forEach((event, index) => {
+                const item = document.createElement("div");
+                item.className = "event-item";
+
+                const details = document.createElement("div");
+
+                const title = document.createElement("div");
+                title.className = "event-title";
+                title.textContent = event.title;
+                details.appendChild(title);
+
+                if (event.time) {
+                    const time = document.createElement("div");
+                    time.className = "event-time";
+                    time.textContent = new Date(
+                        `2000-01-01T${event.time}`
+                    ).toLocaleTimeString([], {
+                        hour: "numeric",
+                        minute: "2-digit"
+                    });
+
+                    details.appendChild(time);
+                }
+
+                if (event.note) {
+                    const note = document.createElement("div");
+                    note.className = "event-note";
+                    note.textContent = event.note;
+                    details.appendChild(note);
+                }
+
+                const deleteButton = document.createElement("button");
+                deleteButton.className = "delete-button";
+                deleteButton.type = "button";
+                deleteButton.textContent = "×";
+                deleteButton.setAttribute("aria-label", "Delete reminder");
+
+                deleteButton.addEventListener("click", () => {
+                    if (!confirm(`Delete "${event.title}"?`)) return;
+
+                    events[key].splice(index, 1);
+
+                    if (events[key].length === 0) {
+                        delete events[key];
+                    }
+
+                    saveEvents();
+                    renderCalendar();
+                    renderEvents();
+                });
+
+                item.appendChild(details);
+                item.appendChild(deleteButton);
+                eventList.appendChild(item);
+            });
+        }
+
+        function openEventDialog(date) {
+            reminderDate = date;
+            eventForm.reset();
+            eventDialog.showModal();
+            document.getElementById("eventTitle").focus();
+        }
+
+        function closeEventDialog() {
+            eventDialog.close();
+            reminderDate = null;
+        }
+
+        // Navigate to the previous month.
+        document.getElementById("previousMonth").addEventListener("click", () => {
+            viewedMonth = new Date(
+                viewedMonth.getFullYear(),
+                viewedMonth.getMonth() - 1,
+                1
+            );
+
+            renderCalendar();
+        });
+
+        // Navigate to the next month.
+        document.getElementById("nextMonth").addEventListener("click", () => {
+            viewedMonth = new Date(
+                viewedMonth.getFullYear(),
+                viewedMonth.getMonth() + 1,
+                1
+            );
+
+            renderCalendar();
+        });
+
+        // Return to today's date.
+        document.getElementById("todayButton").addEventListener("click", () => {
+            selectedDate = getToday();
+            viewedMonth = new Date(
+                selectedDate.getFullYear(),
+                selectedDate.getMonth(),
+                1
+            );
+
+            renderCalendar();
+            renderEvents();
+        });
+
+        document.getElementById("addButton").addEventListener("click", () => {
+            openEventDialog(selectedDate);
+        });
+
+        document.getElementById("closeButton").addEventListener("click", closeEventDialog);
+        document.getElementById("cancelButton").addEventListener("click", closeEventDialog);
+
+        // Save a new reminder.
+        eventForm.addEventListener("submit", event => {
+            event.preventDefault();
+
+            if (!reminderDate) return;
+
+            const title = document.getElementById("eventTitle").value.trim();
+
+            if (!title) return;
+
+            const key = makeDateKey(reminderDate);
+
+            if (!events[key]) {
+                events[key] = [];
+            }
+
+            events[key].push({
+                title: title,
+                time: document.getElementById("eventTime").value,
+                note: document.getElementById("eventNote").value.trim()
+            });
+
+            saveEvents();
+
+            selectedDate = new Date(reminderDate);
+            viewedMonth = new Date(
+                selectedDate.getFullYear(),
+                selectedDate.getMonth(),
+                1
+            );
+
+            closeEventDialog();
+            renderCalendar();
+            renderEvents();
+        });
+
+        // Initialize the application.
+        updateClock();
+        setInterval(updateClock, 1000);
+        renderCalendar();
+        renderEvents();
+    </script>
+</body>
+</html>
